@@ -7,5 +7,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_CUDA_STANDARD 17)
 
+# Enable asan
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+# Enable msan
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory")
+# Enable tsan
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+
+# If nvcc is available compile cuda demo
 add_executable(${PROJECT_NAME} main.cu)
 add_executable(${PROJECT_NAME}-cpu main.cpp)

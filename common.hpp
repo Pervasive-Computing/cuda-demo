@@ -36,7 +36,13 @@ constexpr const char *cyan = "\033[36m";
 #define DEBUG_LOG(stream, format, ...)
 #endif
 
-struct channel {
+struct rgb {
+  unsigned char r;
+  unsigned char g;
+  unsigned char b;
+};
+
+struct rgba {
   unsigned char r;
   unsigned char g;
   unsigned char b;
@@ -48,6 +54,12 @@ struct Image {
   int height;
   int channels;
   unsigned char *data;
+
+  ~Image() {
+    if (data != nullptr) {
+    delete [] data;
+    }
+  }
 
   auto info() const -> std::string {
 
@@ -63,7 +75,7 @@ struct Image {
            " channels, " + size_str;
   }
 
-  auto operator()(int x, int y) -> channel {
+  auto operator()(int x, int y) -> rgba {
     auto const i = (y * width + x) * channels;
     return {.r = data[i + 0],
             .g = data[i + 1],
@@ -71,7 +83,22 @@ struct Image {
             .a = static_cast<unsigned char>(channels == 4 ? data[i + 3] : 255)};
   }
 
-  auto set(int x, int y, channel c) {
+  auto operator()(int x, int y) const -> rgba {
+    auto const i = (y * width + x) * channels;
+    return {.r = data[i + 0],
+            .g = data[i + 1],
+            .b = data[i + 2],
+            .a = static_cast<unsigned char>(channels == 4 ? data[i + 3] : 255)};
+  }
+
+  auto set(int x, int y, const rgb c) {
+    auto const i = (y * width + x) * channels;
+    data[i + 0] = c.r;
+    data[i + 1] = c.g;
+    data[i + 2] = c.b;
+  }
+
+  auto set(int x, int y, const rgba c) {
     auto const i = (y * width + x) * channels;
     data[i + 0] = c.r;
     data[i + 1] = c.g;

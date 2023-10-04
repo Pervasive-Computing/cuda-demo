@@ -13,6 +13,80 @@
 #include "stb_image_write.h"
 
 #include "common.hpp"
+#include "filters.hpp"
+
+auto equalize(const Image &image) -> Image {
+
+  auto output_image = Image{
+      .width = image.width,
+      .height = image.height,
+      .channels = image.channels,
+      .data = new unsigned char[image.width * image.height * image.channels]};
+
+  // Iterate over the pixels and find the average color
+  for (int i = 0; i < image.width; ++i) {
+    for (int j = 0; j < image.height; ++j) {
+      rgba c = image(i, j);
+      unsigned char significant_channel = std::max(c.r, std::max(c.g, c.b));
+
+      output_image.set(i, j,
+                       {.r = significant_channel,
+                        .g = significant_channel,
+                        .b = significant_channel,
+                        .a = c.a});
+    }
+  }
+
+  return output_image;
+}
+
+
+
+auto highest_channel(const Image &image) -> Image {
+  auto output_image = Image{
+      .width = image.width,
+      .height = image.height,
+      .channels = image.channels,
+      .data = new unsigned char[image.width * image.height * image.channels]};
+
+  // Iterate over the pixels and find the average color
+  for (int i = 0; i < image.width; ++i) {
+    for (int j = 0; j < image.height; ++j) {
+      rgba c = image(i, j);
+      const unsigned char highest_channel = std::max(c.r, std::max(c.g, c.b));
+      const unsigned char r = c.r == highest_channel ? 255 : 0;
+      const unsigned char g = c.g == highest_channel ? 255 : 0;
+      const unsigned char b = c.b == highest_channel ? 255 : 0;
+
+      output_image.set(i, j, {.r = r, .g = g, .b = b, .a = c.a});
+    }
+  }
+
+  return output_image;
+}
+
+auto highest_channel2(const Image &image) -> Image {
+  auto output_image = Image{
+      .width = image.width,
+      .height = image.height,
+      .channels = image.channels,
+      .data = new unsigned char[image.width * image.height * image.channels]};
+
+  // Iterate over the pixels and find the average color
+  for (int i = 0; i < image.width; ++i) {
+    for (int j = 0; j < image.height; ++j) {
+      rgba c = image(i, j);
+      const unsigned char highest_channel = std::max(c.r, std::max(c.g, c.b));
+      const unsigned char r = c.r == highest_channel ? highest_channel : 0;
+      const unsigned char g = c.g == highest_channel ? highest_channel : 0;
+      const unsigned char b = c.b == highest_channel ? highest_channel : 0;
+
+      output_image.set(i, j, {.r = r, .g = g, .b = b, .a = c.a});
+    }
+  }
+
+  return output_image;
+}
 
 auto main(int argc, char **argv) -> int {
   if (argc != 2) {
@@ -34,12 +108,17 @@ auto main(int argc, char **argv) -> int {
 
   std::printf("%s\n", input_image.info().c_str());
 
-  auto output_image =
-      Image{.width = input_image.width,
-            .height = input_image.height,
-            .channels = input_image.channels,
-            .data = new unsigned char[input_image.width * input_image.height *
-                                      input_image.channels]};
+  // auto output_image = equalize(input_image);
+  // auto output_image = gaussian_blur(input_image);
+  auto output_image = canny(input_image);
+  //
+  // auto output_image =
+  //     Image{.width = input_image.width,
+  //           .height = input_image.height,
+  //           .channels = input_image.channels,
+  //           .data = new unsigned char[input_image.width * input_image.height
+  //           *
+  //                                     input_image.channels]};
 
   // Image processing code goes here ...
   // Iterate over a 3x3 patch of pixels. Find the average color. and set the 9
@@ -49,18 +128,6 @@ auto main(int argc, char **argv) -> int {
   // Save the image to a new file
   // Free the image data
   //
-  // Iterate over the pixels and find the average color
-  for (int i = 0; i < width; ++i) {
-    for (int j = 0; j < height; ++j) {
-      channel c = input_image(i, j);
-      unsigned char significant_channel = std::max(c.r, std::max(c.g, c.b));
-      output_image.set(i, j,
-                       {.r = significant_channel,
-                        .g = significant_channel,
-                        .b = significant_channel,
-                        .a = c.a});
-    }
-  }
 
   stbi_image_free(data);
 
@@ -69,7 +136,7 @@ auto main(int argc, char **argv) -> int {
                                      output_image.height, output_image.channels,
                                      output_image.data, output_image.width * 4);
 
-  delete[] output_image.data;
+  // delete[] output_image.data;
 
   return EXIT_SUCCESS;
 }
