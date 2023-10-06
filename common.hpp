@@ -1,6 +1,12 @@
 #pragma once
 
+
+#define STBI_MSC_SECURE_CRT
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include <string>
+
 
 namespace escape_codes {
 constexpr const char *reset = "\033[0m";
@@ -55,11 +61,11 @@ struct Image {
   int channels;
   unsigned char *data;
 
-  ~Image() {
-    if (data != nullptr) {
-    delete [] data;
-    }
-  }
+  // ~Image() {
+  //   if (data != nullptr) {
+  //   delete [] data;
+  //   }
+  // }
 
   auto info() const -> std::string {
 
@@ -106,5 +112,10 @@ struct Image {
     if (channels == 4) {
       data[i + 3] = c.a;
     }
+  }
+
+
+  auto write(const std::string &filename) -> void {
+    stbi_write_png(filename.c_str(), width, height, channels, data, width * channels);
   }
 };

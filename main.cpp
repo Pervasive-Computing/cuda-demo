@@ -8,9 +8,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#define STBI_MSC_SECURE_CRT
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+// #define STBI_MSC_SECURE_CRT
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
+// #include "stb_image_write.h"
 
 #include "common.hpp"
 #include "filters.hpp"
@@ -95,6 +95,7 @@ auto main(int argc, char **argv) -> int {
   }
 
   auto const filename = std::string(argv[1]);
+  auto const filename_without_ext = filename.substr(0, filename.find_last_of('.'));
 
   int width, height, channels;
   auto const data = stbi_load(filename.c_str(), &width, &height, &channels, 0);
@@ -110,7 +111,7 @@ auto main(int argc, char **argv) -> int {
 
   // auto output_image = equalize(input_image);
   // auto output_image = gaussian_blur(input_image);
-  auto output_image = canny(input_image);
+  auto output_image = canny(input_image, filename_without_ext);
   //
   // auto output_image =
   //     Image{.width = input_image.width,
@@ -129,14 +130,16 @@ auto main(int argc, char **argv) -> int {
   // Free the image data
   //
 
-  stbi_image_free(data);
 
-  auto const out_filename = filename + ".out.png";
+  auto const out_filename = filename_without_ext + "-6-canny-final.png";
   auto const result = stbi_write_png(out_filename.c_str(), output_image.width,
                                      output_image.height, output_image.channels,
-                                     output_image.data, output_image.width * 4);
+                                     output_image.data, output_image.width * output_image.channels);
 
-  // delete[] output_image.data;
+  // auto const result = stbi_write_png(out_filename.c_str(), input_image.width, input_image.height
+  // , input_image.channels, data, input_image.width * 4);
+  stbi_image_free(data);
+  delete[] output_image.data;
 
   return EXIT_SUCCESS;
 }
