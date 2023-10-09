@@ -45,6 +45,7 @@ double* generate_gaussian_kernel(int N) {
 }
 
 
+
 auto main(int argc, char **argv) -> int {
   if (argc != 2) {
     std::fprintf(stderr, "Usage: %s <file.png>\n", argv[0]);
@@ -62,6 +63,7 @@ auto main(int argc, char **argv) -> int {
 
   std::printf("Image %s: %dx%d, %d channels\n", filename.c_str(), width, height,
               channels);
+
 
 
   auto kernel = generate_gaussian_kernel(KERNEL_SIZE);
@@ -87,8 +89,12 @@ auto main(int argc, char **argv) -> int {
   cudaMemcpy(d_input, data, size, cudaMemcpyHostToDevice);
   cudaMemcpy(d_kernel, kernel, KERNEL_SIZE * KERNEL_SIZE * sizeof(double), cudaMemcpyHostToDevice);
 
-  dim3 block(16, 16);
-  dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
+  // dim3 block(16, 16);
+  dim3 block(1, 1);
+  dim3 grid(width / block.x, height / block.y);
+
+  std::printf("block: .x = %4d, .y = %4d\n", block.x, block.y);
+  std::printf("grid:  .x = %4d, .y = %4d, .z = %4d\n", grid.x, grid.y, grid.z);
 
   cuda_gaussian_blur<<<grid, block>>>(d_input, d_output, d_kernel, width, height, KERNEL_SIZE);
 

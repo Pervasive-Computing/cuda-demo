@@ -4,8 +4,8 @@
 #include <device_launch_parameters.h>
 
 __global__ void cuda_gaussian_blur(const unsigned char* input, unsigned char* output, const double* kernel, int width, int height, int kernel_size) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    int x = blockIdx.x * blockDim.x + threadIdx.x; // col
+    int y = blockIdx.y * blockDim.y + threadIdx.y; // row
 
     if(x < width && y < height) {
         double value = 0.0;
